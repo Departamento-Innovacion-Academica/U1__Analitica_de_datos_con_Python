@@ -21,12 +21,39 @@
             font-family: 'Poppins', sans-serif;
             color: var(--text-main);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 40px 20px;
+            padding: 80px 20px 40px;
             box-sizing: border-box;
+        }
+
+        .instruction {
+            position: fixed;
+            top: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 30px;
+            border-radius: 30px;
+            border: 1px solid rgba(163, 148, 255, 0.3);
+            color: var(--primary-soft);
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            animation: floatAnim 4s ease-in-out infinite;
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        @keyframes floatAnim {
+            0%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(-8px);
+                opacity: 1;
+            }
         }
 
         .grid-knowledge {
@@ -151,6 +178,8 @@
 </head>
 
 <body>
+
+    <div class="instruction">haga clic sobre las tarjetas para ampliar la información</div>
 
     <div class="grid-knowledge">
         
