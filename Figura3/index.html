@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparación Conceptual de Lenguaje</title>
+  <!-- Font Awesome y Devicon para los logos e iconos exactos de tecnologías -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/files/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicon/devicon@v2.15.1/devicon.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    body {
+      background-color: #eef2f5;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px 10px;
+      overflow-x: hidden;
+    }
+
+    /* Instrucción antes de la tarjeta */
+    .instruction {
+      text-align: center;
+      font-size: 15px;
+      color: #444;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    /* Contenedor principal azul oscuro */
+    .card-container {
+      background-color: #1a3c6d;
+      border-radius: 24px;
+      padding: clamp(25px, 4vw, 45px) clamp(20px, 4vw, 40px);
+      width: 100%;
+      max-width: 850px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Título principal */
+    .main-title {
+      color: #ffffff;
+      text-align: center;
+      font-size: clamp(20px, 3.5vw, 28px);
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      margin-bottom: 30px;
+      text-transform: uppercase;
+    }
+
+    /* Grid de Filas */
+    .comparison-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Fila de comparación */
+    .row-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      opacity: 0; /* Oculto inicialmente para animación */
+    }
+
+    /* Bloque del Lenguaje (Izquierda) */
+    .lang-box {
+      background-color: #f4f5f7;
+      border-radius: 12px;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex: 1.1;
+      min-height: 80px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .lang-box:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    .lang-box i {
+      font-size: 48px;
+      min-width: 50px;
+      text-align: center;
+    }
+
+    .lang-name {
+      font-size: clamp(20px, 2.8vw, 26px);
+      font-weight: 800;
+      color: #1a3c6d;
+    }
+
+    /* Flechas Conectoras */
+    .arrow-icon {
+      color: #e59500;
+      font-size: clamp(22px, 3vw, 32px);
+      flex-shrink: 0;
+      opacity: 0;
+    }
+
+    /* Bloque del Concepto (Derecha) */
+    .concept-box {
+      background-color: #f4f5f7;
+      border-radius: 12px;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1.8;
+      min-height: 80px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .concept-box:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    .concept-text {
+      font-size: clamp(18px, 2.6vw, 25px);
+      font-weight: 800;
+    }
+
+    /* Colores específicos según la figura original */
+    .text-orange { color: #e59500; }
+    .text-blue { color: #1a3c6d; }
+
+    /* Estilos e Iconos específicos */
+    .icon-python { color: #3776ab; }
+    .icon-r { color: #276dc3; }
+    .icon-sql { color: #1a3c6d; }
+    .icon-java { color: #e76f51; }
+
+    /* Contenedor del Botón */
+    .btn-container {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .btn-restart {
+      background: linear-gradient(135deg, #1a3c6d, #0d2342);
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      padding: 12px 30px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-restart:hover {
+      background: linear-gradient(135deg, #e59500, #c47f00);
+      transform: scale(1.08) translateY(-2px);
+      border-color: #e59500;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-restart:active {
+      transform: scale(0.95);
+    }
+
+    /* ===================================================
+       KEYFRAMES DE ANIMACIONES EXAGERADAS
+       =================================================== */
+
+    @keyframes superBounceIn {
+      0% {
+        opacity: 0;
+        transform: scale3d(0.2, 0.2, 0.2) rotate(-15deg) translateY(-80px);
+      }
+      50% {
+        opacity: 1;
+        transform: scale3d(1.15, 1.15, 1.15) rotate(5deg) translateY(10px);
+      }
+      70% {
+        transform: scale3d(0.9, 0.9, 0.9) rotate(-2deg);
+      }
+      85% {
+        transform: scale3d(1.05, 1.05, 1.05) rotate(1deg);
+      }
+      100% {
+        opacity: 1;
+        transform: scale3d(1, 1, 1) rotate(0deg) translateY(0);
+      }
+    }
+
+    @keyframes arrowShootRight {
+      0% {
+        opacity: 0;
+        transform: translateX(-30px) scale(0);
+      }
+      60% {
+        opacity: 1;
+        transform: translateX(8px) scale(1.6);
+      }
+      80% {
+        transform: translateX(-3px) scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+    }
+
+    /* Clases animadoras */
+    .animate-row {
+      animation: superBounceIn 0.75s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+    }
+
+    .animate-arrow {
+      animation: arrowShootRight 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    /* --- RESPONSIVE MEDIA QUERIES --- */
+    @media (max-width: 650px) {
+      .row-item {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .lang-box, .concept-box {
+        width: 100%;
+        min-height: 60px;
+      }
+
+      .arrow-icon {
+        transform: rotate(90deg);
+        margin: 2px 0;
+      }
+
+      @keyframes arrowShootRight {
+        0% {
+          opacity: 0;
+          transform: rotate(90deg) translateY(-30px) scale(0);
+        }
+        60% {
+          opacity: 1;
+          transform: rotate(90deg) translateY(8px) scale(1.6);
+        }
+        100% {
+          opacity: 1;
+          transform: rotate(90deg) translateY(0) scale(1);
+        }
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Instrucción -->
+  <p class="instruction">Presione el botón "Reiniciar ▶" a continuación para reproducir la animación.</p>
+
+  <!-- Contenedor de la Figura -->
+  <div class="card-container">
+    <h1 class="main-title">Comparación Conceptual de Lenguaje</h1>
+
+    <div class="comparison-list">
+      
+      <!-- Fila 1: Python -->
+      <div class="row-item">
+        <div class="lang-box">
+          <i class="devicon-python-plain colored icon-python"></i>
+          <span class="lang-name">Python</span>
+        </div>
+        <i class="fa-solid fa-arrow-right-long arrow-icon"></i>
+        <div class="concept-box">
+          <span class="concept-text text-orange">Fácil + Potente</span>
+        </div>
+      </div>
+
+      <!-- Fila 2: R -->
+      <div class="row-item">
+        <div class="lang-box">
+          <i class="devicon-r-original icon-r"></i>
+          <span class="lang-name">R</span>
+        </div>
+        <i class="fa-solid fa-arrow-right-long arrow-icon"></i>
+        <div class="concept-box">
+          <span class="concept-text text-orange">Estadística avanzada</span>
+        </div>
+      </div>
+
+      <!-- Fila 3: SQL -->
+      <div class="row-item">
+        <div class="lang-box">
+          <i class="fa-solid fa-file-code icon-sql"></i>
+          <span class="lang-name">SQL</span>
+        </div>
+        <i class="fa-solid fa-arrow-right-long arrow-icon"></i>
+        <div class="concept-box">
+          <span class="concept-text text-orange">Consulta de datos</span>
+        </div>
+      </div>
+
+      <!-- Fila 4: Java -->
+      <div class="row-item">
+        <div class="lang-box">
+          <i class="devicon-java-plain colored icon-java"></i>
+          <span class="lang-name">Java</span>
+        </div>
+        <i class="fa-solid fa-arrow-right-long arrow-icon"></i>
+        <div class="concept-box">
+          <span class="concept-text text-blue">Alto rendimiento</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Botón de Reinicio -->
+  <div class="btn-container">
+    <button class="btn-restart" id="btnRestart">
+      Reiniciar ▶
+    </button>
+  </div>
+
+  <script>
+    function triggerAnimations() {
+      const rows = document.querySelectorAll('.row-item');
+      const arrows = document.querySelectorAll('.arrow-icon');
+
+      // 1. Limpiar estados y clases animadas
+      rows.forEach(row => {
+        row.classList.remove('animate-row');
+        row.style.opacity = '0';
+      });
+      arrows.forEach(arrow => {
+        arrow.classList.remove('animate-arrow');
+        arrow.style.opacity = '0';
+      });
+
+      // 2. Reflow para permitir reinicio
+      void document.body.offsetHeight;
+
+      // 3. Ejecutar animaciones en cascada
+      let delay = 0;
+      rows.forEach((row, index) => {
+        setTimeout(() => {
+          row.classList.add('animate-row');
+        }, delay);
+
+        // La flechas entran casi en simultáneo con su respectiva fila
+        setTimeout(() => {
+          if (arrows[index]) arrows[index].classList.add('animate-arrow');
+        }, delay + 200);
+
+        delay += 300; // Intervalo de tiempo entre cada fila
+      });
+    }
+
+    // Iniciar automáticamente al cargar
+    window.addEventListener('DOMContentLoaded', triggerAnimations);
+
+    // Evento al presionar el botón Reiniciar
+    document.getElementById('btnRestart').addEventListener('click', triggerAnimations);
+  </script>
+
+</body>
+</html>
