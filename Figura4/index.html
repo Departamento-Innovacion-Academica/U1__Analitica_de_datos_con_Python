@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flujo de Análisis con Python</title>
+  <!-- Font Awesome para todos los iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px 10px;
+      overflow-x: hidden;
+    }
+
+    /* Mensaje instructivo */
+    .instruction {
+      text-align: center;
+      font-size: 15px;
+      color: #555;
+      margin-bottom: 25px;
+      font-style: italic;
+    }
+
+    /* Contenedor principal estilo tarjeta clara */
+    .flow-container {
+      background-color: #f4f6f8;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: clamp(30px, 4vw, 50px) clamp(20px, 3vw, 40px);
+      width: 100%;
+      max-width: 1050px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Flexbox principal para Desktop */
+    .process-flow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    /* Envoltorio de cada tarjeta */
+    .step-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      opacity: 0; /* Oculto inicialmente para la animación */
+    }
+
+    /* Tarjetas blancas con bordes redondeados */
+    .card {
+      background-color: #eff2f6;
+      border: 1px solid #e0e4e8;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 180px;
+      height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 12px 22px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Área de iconos dentro de la tarjeta */
+    .icon-box {
+      height: 80px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .icon-box i {
+      font-size: 58px;
+    }
+
+    /* Colores e iconos */
+    .icon-data { color: #1e4e79; }
+    .icon-code { color: #1e4e79; }
+    .icon-analysis { color: #1e4e79; }
+    .icon-results { color: #d97706; }
+
+    /* Estilo del texto debajo del icono */
+    .step-label {
+      font-size: clamp(16px, 1.8vw, 19px);
+      font-weight: 800;
+      color: #1a365d;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    /* Flechas conectoras ajustadas */
+    .arrow-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #1e4e79;
+      font-size: clamp(22px, 2.5vw, 30px);
+      opacity: 0;
+      flex-shrink: 0;
+      padding: 0 5px;
+    }
+
+    /* Botón de Reinicio */
+    .btn-container {
+      text-align: center;
+      margin-top: 35px;
+    }
+
+    .btn-restart {
+      background: linear-gradient(135deg, #1a365d, #0f2341);
+      color: #ffffff;
+      border: none;
+      padding: 12px 32px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-restart:hover {
+      background: linear-gradient(135deg, #2b5b84, #1a365d);
+      transform: scale(1.06) translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .btn-restart:active {
+      transform: scale(0.96);
+    }
+
+    /* ===================================================
+       KEYFRAMES DE ANIMACIONES 3D
+       =================================================== */
+
+    @keyframes popBounce3D {
+      0% {
+        opacity: 0;
+        transform: scale3d(0.2, 0.2, 0.2) rotate(-12deg) translateY(-60px);
+      }
+      55% {
+        opacity: 1;
+        transform: scale3d(1.12, 1.12, 1.12) rotate(4deg) translateY(8px);
+      }
+      75% {
+        transform: scale3d(0.92, 0.92, 0.92) rotate(-2deg);
+      }
+      90% {
+        transform: scale3d(1.03, 1.03, 1.03) rotate(1deg);
+      }
+      100% {
+        opacity: 1;
+        transform: scale3d(1, 1, 1) rotate(0deg) translateY(0);
+      }
+    }
+
+    @keyframes arrowShoot {
+      0% {
+        opacity: 0;
+        transform: translateX(-25px) scale(0);
+      }
+      60% {
+        opacity: 1;
+        transform: translateX(6px) scale(1.4);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+    }
+
+    .animate-card {
+      animation: popBounce3D 0.75s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+    }
+
+    .animate-arrow {
+      animation: arrowShoot 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    /* --- RESPONSIVE MEDIA QUERIES --- */
+    @media (max-width: 768px) {
+      .process-flow {
+        flex-direction: column;
+        gap: 0;
+      }
+
+      .step-wrapper {
+        width: 100%;
+        max-width: 220px;
+      }
+
+      .card {
+        max-width: 220px;
+        height: 160px;
+      }
+
+      .arrow-container {
+        margin: 15px 0;
+        transform: rotate(90deg);
+      }
+
+      @keyframes arrowShoot {
+        0% {
+          opacity: 0;
+          transform: rotate(90deg) translateY(-25px) scale(0);
+        }
+        60% {
+          opacity: 1;
+          transform: rotate(90deg) translateY(6px) scale(1.4);
+        }
+        100% {
+          opacity: 1;
+          transform: rotate(90deg) translateY(0) scale(1);
+        }
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Instrucción -->
+  <p class="instruction">Haga clic sobre el botón "Reiniciar ▶" para repetir la animación.</p>
+
+  <!-- Contenedor del Flujo -->
+  <div class="flow-container">
+    <div class="process-flow">
+      
+      <!-- Paso 1: Fuentes de datos -->
+      <div class="step-wrapper">
+        <div class="card">
+          <div class="icon-box">
+            <i class="fa-solid fa-sitemap icon-data"></i>
+          </div>
+          <span class="step-label">Fuentes<br>de datos</span>
+        </div>
+      </div>
+
+      <!-- Flecha intermedia 1 -->
+      <div class="arrow-container">
+        <i class="fa-solid fa-arrow-right-long"></i>
+      </div>
+
+      <!-- Paso 2: Python -->
+      <div class="step-wrapper">
+        <div class="card">
+          <div class="icon-box">
+            <i class="fa-solid fa-code icon-code"></i>
+          </div>
+          <span class="step-label">Python</span>
+        </div>
+      </div>
+
+      <!-- Flecha intermedia 2 -->
+      <div class="arrow-container">
+        <i class="fa-solid fa-arrow-right-long"></i>
+      </div>
+
+      <!-- Paso 3: Análisis -->
+      <div class="step-wrapper">
+        <div class="card">
+          <div class="icon-box">
+            <i class="fa-solid fa-user-gear icon-analysis"></i>
+          </div>
+          <span class="step-label">Análisis</span>
+        </div>
+      </div>
+
+      <!-- Flecha intermedia 3 -->
+      <div class="arrow-container">
+        <i class="fa-solid fa-arrow-right-long"></i>
+      </div>
+
+      <!-- Paso 4: Resultados -->
+      <div class="step-wrapper">
+        <div class="card">
+          <div class="icon-box">
+            <i class="fa-solid fa-clipboard-question icon-results"></i>
+          </div>
+          <span class="step-label">Resultados</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Botón de Reinicio -->
+  <div class="btn-container">
+    <button class="btn-restart" id="btnRestart">
+      Reiniciar ▶
+    </button>
+  </div>
+
+  <script>
+    function triggerAnimations() {
+      const cards = document.querySelectorAll('.step-wrapper');
+      const arrows = document.querySelectorAll('.arrow-container');
+
+      // Limpiar clases y estados de animaciones previas
+      cards.forEach(card => {
+        card.classList.remove('animate-card');
+        card.style.opacity = '0';
+      });
+      arrows.forEach(arrow => {
+        arrow.classList.remove('animate-arrow');
+        arrow.style.opacity = '0';
+      });
+
+      // Reflow para reiniciar la animación CSS
+      void document.body.offsetHeight;
+
+      // Disparar las animaciones en secuencia
+      let delay = 0;
+      cards.forEach((card, index) => {
+        setTimeout(() => {
+          card.classList.add('animate-card');
+        }, delay);
+
+        if (arrows[index]) {
+          setTimeout(() => {
+            arrows[index].classList.add('animate-arrow');
+          }, delay + 200);
+        }
+
+        delay += 300;
+      });
+    }
+
+    // Ejecutar al cargar la página
+    window.addEventListener('DOMContentLoaded', triggerAnimations);
+
+    // Ejecutar al hacer clic en el botón
+    document.getElementById('btnRestart').addEventListener('click', triggerAnimations);
+  </script>
+
+</body>
+</html>
