@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proceso de Análisis de Datos - Animado</title>
+  <!-- Font Awesome para los iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px 10px;
+      overflow-x: hidden;
+    }
+
+    /* Contenedor principal responsive */
+    .container {
+      background-color: #f7f7f8;
+      border: 1px solid #e0e0e0;
+      border-radius: 20px;
+      padding: clamp(20px, 4vw, 40px) clamp(15px, 3vw, 30px);
+      width: 100%;
+      max-width: 1100px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      perspective: 1000px;
+    }
+
+    .title {
+      text-align: center;
+      font-size: clamp(18px, 4vw, 24px);
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      color: #111;
+      text-transform: uppercase;
+    }
+
+    /* Instrucción */
+    .instruction {
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 25px;
+      font-style: italic;
+    }
+
+    /* Layout del proceso en Desktop */
+    .process-flow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .step-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      max-width: 160px;
+      opacity: 0; /* Oculto inicialmente para la animación */
+    }
+
+    /* Tarjetas adaptables */
+    .card {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-width: 140px;
+      border-radius: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      margin-bottom: 12px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-8px) scale(1.05) rotate(2deg);
+      box-shadow: 0 12px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .card i {
+      font-size: clamp(35px, 5vw, 60px);
+      filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2));
+    }
+
+    /* Colores por cada paso */
+    .step-1 .card, .step-1 .ribbon { background-color: #00738c; }
+    .step-2 .card, .step-2 .ribbon { background-color: #1d3393; }
+    .step-3 .card, .step-3 .ribbon { background-color: #6a39a0; }
+    .step-4 .card, .step-4 .ribbon { background-color: #d96b00; }
+    .step-5 .card, .step-5 .ribbon { background-color: #00a878; }
+
+    /* Estilo del listón/ribbon responsive */
+    .ribbon {
+      position: relative;
+      width: 105%;
+      height: 36px;
+      line-height: 36px;
+      text-align: center;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: clamp(11px, 1.2vw, 14px);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .ribbon::before, .ribbon::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      border-style: solid;
+      border-color: transparent;
+    }
+
+    .ribbon::before {
+      left: 0;
+      border-width: 18px 0 18px 10px;
+      border-left-color: #f7f7f8;
+    }
+
+    .ribbon::after {
+      right: 0;
+      border-width: 18px 10px 18px 0;
+      border-right-color: #f7f7f8;
+    }
+
+    /* Flecha adaptativa */
+    .arrow {
+      color: #000;
+      font-size: clamp(16px, 2.5vw, 22px);
+      margin-bottom: 45px;
+      flex-shrink: 0;
+      opacity: 0; /* Oculta inicialmente */
+    }
+
+    /* Botón de Reiniciar */
+    .btn-container {
+      text-align: center;
+      margin-top: 35px;
+    }
+
+    .btn-restart {
+      background: linear-gradient(135deg, #111, #333);
+      color: #fff;
+      border: none;
+      padding: 12px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-restart:hover {
+      background: linear-gradient(135deg, #333, #555);
+      transform: scale(1.08);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-restart:active {
+      transform: scale(0.95);
+    }
+
+    /* ===================================================
+       KEYFRAMES DE ANIMACIONES EXAGERADAS
+       =================================================== */
+
+    /* Animación de Rebote Pop-3D para cada Paso */
+    @keyframes popInBounce {
+      0% {
+        opacity: 0;
+        transform: scale3d(0.1, 0.1, 0.1) rotate(-25deg) translateY(-100px);
+      }
+      50% {
+        opacity: 1;
+        transform: scale3d(1.3, 1.3, 1.3) rotate(10deg) translateY(15px);
+      }
+      70% {
+        transform: scale3d(0.85, 0.85, 0.85) rotate(-5deg) translateY(-5px);
+      }
+      85% {
+        transform: scale3d(1.1, 1.1, 1.1) rotate(2deg);
+      }
+      100% {
+        opacity: 1;
+        transform: scale3d(1, 1, 1) rotate(0deg) translateY(0);
+      }
+    }
+
+    /* Animación Elástica para las Flechas */
+    @keyframes arrowShoot {
+      0% {
+        opacity: 0;
+        transform: translateX(-40px) scale(0);
+      }
+      60% {
+        opacity: 1;
+        transform: translateX(10px) scale(1.5);
+      }
+      80% {
+        transform: translateX(-5px) scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+    }
+
+    /* Flecha en vertical para móvil */
+    @keyframes arrowShootMobile {
+      0% {
+        opacity: 0;
+        transform: rotate(90deg) translateX(-40px) scale(0);
+      }
+      60% {
+        opacity: 1;
+        transform: rotate(90deg) translateX(10px) scale(1.5);
+      }
+      80% {
+        transform: rotate(90deg) translateX(-5px) scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: rotate(90deg) translateX(0) scale(1);
+      }
+    }
+
+    /* Clases de activación de animación */
+    .animate-step {
+      animation: popInBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+    }
+
+    .animate-arrow {
+      animation: arrowShoot 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    /* --- RESPONSIVE MEDIA QUERIES --- */
+
+    @media (max-width: 992px) and (min-width: 651px) {
+      .process-flow { gap: 5px; }
+      .ribbon { height: 32px; line-height: 32px; }
+      .ribbon::before, .ribbon::after { border-top-width: 16px; border-bottom-width: 16px; }
+      .arrow { margin-bottom: 40px; }
+    }
+
+    @media (max-width: 650px) {
+      .process-flow {
+        flex-direction: column;
+        gap: 0;
+      }
+      .step-wrapper { width: 100%; max-width: 180px; }
+      .card { max-width: 130px; }
+      .ribbon { width: 100%; font-size: 13px; }
+      .arrow { margin: 20px 0; }
+
+      .animate-arrow {
+        animation: arrowShootMobile 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1 class="title">Proceso de Análisis de Datos</h1>
+    <p class="instruction">Presione el botón "Reiniciar ▶" a continuación para volver a presenciar la animación.</p>
+
+    <div class="process-flow">
+      
+      <!-- Paso 1 -->
+      <div class="step-wrapper step-1">
+        <div class="card">
+          <i class="fa-solid fa-server"></i>
+        </div>
+        <div class="ribbon">Datos</div>
+      </div>
+
+      <i class="fa-solid fa-arrow-right-long arrow"></i>
+
+      <!-- Paso 2 -->
+      <div class="step-wrapper step-2">
+        <div class="card">
+          <i class="fa-solid fa-broom"></i>
+        </div>
+        <div class="ribbon">Limpieza</div>
+      </div>
+
+      <i class="fa-solid fa-arrow-right-long arrow"></i>
+
+      <!-- Paso 3 -->
+      <div class="step-wrapper step-3">
+        <div class="card">
+          <i class="fa-solid fa-magnifying-glass-chart"></i>
+        </div>
+        <div class="ribbon">Análisis</div>
+      </div>
+
+      <i class="fa-solid fa-arrow-right-long arrow"></i>
+
+      <!-- Paso 4 -->
+      <div class="step-wrapper step-4">
+        <div class="card">
+          <i class="fa-solid fa-display"></i>
+        </div>
+        <div class="ribbon">Modelado</div>
+      </div>
+
+      <i class="fa-solid fa-arrow-right-long arrow"></i>
+
+      <!-- Paso 5 -->
+      <div class="step-wrapper step-5">
+        <div class="card">
+          <i class="fa-solid fa-chart-pie"></i>
+        </div>
+        <div class="ribbon">Resultados</div>
+      </div>
+
+    </div>
+
+    <!-- Botón de Reinicio -->
+    <div class="btn-container">
+      <button class="btn-restart" id="btnRestart">Reiniciar ▶</button>
+    </div>
+  </div>
+
+  <script>
+    function triggerAnimations() {
+      const steps = document.querySelectorAll('.step-wrapper');
+      const arrows = document.querySelectorAll('.arrow');
+
+      // Limpiar animaciones previas
+      steps.forEach(step => {
+        step.classList.remove('animate-step');
+        step.style.opacity = '0';
+      });
+      arrows.forEach(arrow => {
+        arrow.classList.remove('animate-arrow');
+        arrow.style.opacity = '0';
+      });
+
+      // Forzar Reflow para reiniciar la animación CSS
+      void document.body.offsetHeight;
+
+      // Aplicar animación de forma secuencial
+      let delay = 0;
+      steps.forEach((step, index) => {
+        setTimeout(() => {
+          step.classList.add('animate-step');
+        }, delay);
+
+        delay += 250; // Retardo entre pasos
+
+        // Animación de las flechas justo después de cada paso
+        if (arrows[index]) {
+          setTimeout(() => {
+            arrows[index].classList.add('animate-arrow');
+          }, delay - 100);
+        }
+      });
+    }
+
+    // Iniciar animación en la carga inicial
+    window.addEventListener('DOMContentLoaded', triggerAnimations);
+
+    // Evento al hacer clic en Reiniciar
+    document.getElementById('btnRestart').addEventListener('click', triggerAnimations);
+  </script>
+
+</body>
+</html>
