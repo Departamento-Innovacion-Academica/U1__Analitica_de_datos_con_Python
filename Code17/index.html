@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manipulación de DataFrames en Pandas - Modo Claro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+      --card-bg: rgba(255, 255, 255, 0.7);
+      --card-border: rgba(99, 102, 241, 0.15);
+      --accent: #4f46e5;
+      --accent-glow: rgba(79, 70, 229, 0.15);
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --radius-xl: 24px;
+      --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 2.5rem;
+      overflow-x: hidden;
+    }
+
+    /* INSTRUCCIÓN FLOTANTE (Glassmorphism Light) */
+    .floating-instruction {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(79, 70, 229, 0.2);
+      color: #3730a3;
+      padding: 0.75rem 1.6rem;
+      border-radius: 100px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.1);
+      animation: float 3s infinite ease-in-out;
+      text-align: center;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .container {
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.8rem;
+      justify-content: center;
+    }
+
+    @media (max-width: 640px) {
+      .grid-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* TARJETAS INTERACTIVAS (Glassmorphism Light + Hover Effects) */
+    .card-btn {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-xl);
+      height: 220px;
+      cursor: pointer;
+      text-align: left;
+      outline: none;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition-smooth);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2rem;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05);
+    }
+
+    .card-btn::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      opacity: 0;
+      transition: var(--transition-smooth);
+      pointer-events: none;
+    }
+
+    .card-header-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 38px;
+      padding: 0 1rem;
+      border-radius: 12px;
+      background: rgba(79, 70, 229, 0.08);
+      border: 1px solid rgba(79, 70, 229, 0.2);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.85rem;
+      transition: var(--transition-smooth);
+      align-self: flex-start;
+    }
+
+    .card-btn h3 {
+      font-size: 1.12rem;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.4;
+      margin-top: 0.5rem;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .card-footer span {
+      transition: var(--transition-smooth);
+      display: inline-block;
+    }
+
+    /* HOVER & FOCUS EFFECTS */
+    .card-btn:hover {
+      transform: translateY(-6px);
+      border-color: rgba(79, 70, 229, 0.4);
+      box-shadow: 0 20px 35px -10px rgba(79, 70, 229, 0.15);
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .card-btn:hover::before {
+      opacity: 1;
+    }
+
+    .card-btn:hover .card-header-badge {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    .card-btn:hover .card-footer span {
+      transform: translateX(6px);
+    }
+
+    /* VENTANA EMERGENTE (MODAL LIGHT ELEGANT) */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.35);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--transition-smooth);
+      z-index: 1000;
+      padding: 1.5rem;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: #ffffff;
+      background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid rgba(79, 70, 229, 0.15);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem;
+      max-width: 650px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      transform: scale(0.9) translateY(20px);
+      transition: var(--transition-smooth);
+      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15), 0 0 30px rgba(79, 70, 229, 0.08);
+      position: relative;
+    }
+
+    .modal-overlay.active .modal-box {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.2rem;
+      background: rgba(15, 23, 42, 0.04);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-smooth);
+    }
+
+    .modal-close:hover {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .modal-box h2 {
+      font-size: 1.35rem;
+      color: var(--text-main);
+      margin-bottom: 1.2rem;
+      padding-right: 2rem;
+      line-height: 1.4;
+    }
+
+    .modal-box div.content {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    .modal-box div.content p {
+      margin-bottom: 0.6rem;
+    }
+
+    .modal-box div.content p.section-sublabel {
+      font-weight: 600;
+      color: var(--text-main);
+      margin-top: 1rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .modal-box div.content pre {
+      background: #0f172a;
+      border: 1px solid rgba(15, 23, 42, 0.1);
+      border-radius: 12px;
+      padding: 1.2rem;
+      margin-bottom: 1rem;
+      overflow-x: auto;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    }
+
+    .modal-box div.content code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.88rem;
+      color: #38bdf8;
+      line-height: 1.6;
+    }
+
+    /* CURSOR ANIMADO EFECTO TYPING */
+    .typing-cursor::after {
+      content: '▋';
+      display: inline-block;
+      margin-left: 3px;
+      color: #818cf8;
+      animation: blink 0.8s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .modal-hint {
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: right;
+      border-top: 1px solid rgba(15, 23, 42, 0.08);
+      padding-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- INSTRUCCIÓN FLOTANTE -->
+  <div class="floating-instruction">
+    ✨ Haga clic sobre las tarjetas para ampliar la información
+  </div>
+
+  <!-- REJILLA DE TARJETAS (2x3) -->
+  <main class="container">
+    <div class="grid-cards">
+
+      <!-- Tarjeta 1 -->
+      <button class="card-btn" onclick="openModal('1.2.6.1 Selección de columnas', `
+        <p>La selección de columnas permite acceder a una o varias variables dentro de un DataFrame.</p>
+        <pre><code data-code='import pandas as pd\n\ndata = {\n    &quot;Nombre&quot;: [&quot;Ana&quot;, &quot;Luis&quot;, &quot;Carlos&quot;],\n    &quot;Edad&quot;: [23, 30, 35],\n    &quot;Ciudad&quot;: [&quot;Bogotá&quot;, &quot;Medellín&quot;, &quot;Cali&quot;]\n}\ndf = pd.DataFrame(data)\n\n# Seleccionar una columna\nprint(df[&quot;Edad&quot;])'></code></pre>
+        <p class=&quot;section-sublabel&quot;>Selección de múltiples columnas:</p>
+        <pre><code data-code='print(df[[&quot;Nombre&quot;, &quot;Ciudad&quot;]])'></code></pre>
+      `)">
+        <div class="card-header-badge">1.2.6.1</div>
+        <h3>Selección de columnas</h3>
+        <div class="card-footer">Ampliar información <span>&rarr;</span></div>
+      </button>
+
+      <!-- Tarjeta 2 -->
+      <button class="card-btn" onclick="openModal('1.2.6.2 Selección de filas', `
+        <p>Pandas permite seleccionar filas mediante índices utilizando <code>iloc</code> (posición) o <code>loc</code> (etiqueta).</p>
+        <pre><code data-code='# Selección por posición\nprint(df.iloc[0])\n\n# Selección por etiqueta\ndf.index = [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]\nprint(df.loc[&quot;a&quot;])'></code></pre>
+      `)">
+        <div class="card-header-badge">1.2.6.2</div>
+        <h3>Selección de filas</h3>
+        <div class="card-footer">Ampliar información <span>&rarr;</span></div>
+      </button>
+
+      <!-- Tarjeta 3 -->
+      <button class="card-btn" onclick="openModal('1.2.6.3 Filtrado de datos', `
+        <p>El filtrado permite seleccionar registros que cumplen ciertas condiciones.</p>
+        <pre><code data-code='# Filtrar mayores de 25 años\nfiltro = df[df[&quot;Edad&quot;] > 25]\nprint(filtro)'></code></pre>
+        <p class=&quot;section-sublabel&quot;>Filtrado con múltiples condiciones:</p>
+        <pre><code data-code='filtro = df[(df[&quot;Edad&quot;] > 25) & (df[&quot;Ciudad&quot;] == &quot;Cali&quot;)]\nprint(filtro)'></code></pre>
+        <p>Estas operaciones son esenciales para el análisis exploratorio.</p>
+      `)">
+        <div class="card-header-badge">1.2.6.3</div>
+        <h3>Filtrado de datos</h3>
+        <div class="card-footer">Ampliar información <span>&rarr;</span></div>
+      </button>
+
+      <!-- Tarjeta 4 -->
+      <button class="card-btn" onclick="openModal('1.2.6.4 Modificación de datos', `
+        <p>Pandas permite modificar valores dentro de un DataFrame de manera sencilla.</p>
+        <pre><code data-code='# Modificar valores\ndf[&quot;Edad&quot;] = df[&quot;Edad&quot;] + 1\nprint(df)'></code></pre>
+        <p class=&quot;section-sublabel&quot;>Modificación condicional:</p>
+        <pre><code data-code='df.loc[df[&quot;Edad&quot;] > 30, &quot;Ciudad&quot;] = &quot;Otra ciudad&quot;\nprint(df)'></code></pre>
+      `)">
+        <div class="card-header-badge">1.2.6.4</div>
+        <h3>Modificación de datos</h3>
+        <div class="card-footer">Ampliar información <span>&rarr;</span></div>
+      </button>
+
+      <!-- Tarjeta 5 -->
+      <button class="card-btn" onclick="openModal('1.2.6.5 Creación de nuevas columnas', `
+        <p>También es posible crear nuevas variables a partir de las existentes.</p>
+        <pre><code data-code='df[&quot;Mayor_edad&quot;] = df[&quot;Edad&quot;] > 18\nprint(df)'></code></pre>
+      `)">
+        <div class="card-header-badge">1.2.6.5</div>
+        <h3>Creación de nuevas columnas</h3>
+        <div class="card-footer">Ampliar información <span>&rarr;</span></div>
+      </button>
+
+      <!-- Tarjeta 6 -->
+      <button class="card-btn" onclick="openModal('1.2.6.6 Eliminación de columnas y filas', `
+        <pre><code data-code='# Eliminar columna\ndf = df.drop(columns=[&quot;Ciudad&quot;])\nprint(df)'></code></pre>
+      `)">
+        <div class="card-header-badge">1.2.6.6</div>
+        <h3>Eliminación de columnas y filas</h3>
+        <div class="card-footer">Ampliar información <span>&rarr;</span></div>
+      </button>
+
+    </div>
+  </main>
+
+  <!-- PANTALLA EMERGENTE / MODAL -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOutside(event)">
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <button class="modal-close" onclick="closeModal()" aria-label="Cerrar">&times;</button>
+      <h2 id="modalTitle">Título de la sección</h2>
+      <div class="content" id="modalBody">Descripción detallada...</div>
+      <div class="modal-hint">Presione <strong>Esc</strong> para cerrar</div>
+    </div>
+  </div>
+
+  <script>
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    let typingTimeouts = [];
+
+    function openModal(title, htmlContent) {
+      clearTypingTimeouts();
+      modalTitle.innerText = title;
+      modalBody.innerHTML = htmlContent;
+      modalOverlay.classList.add('active');
+
+      const codeBlocks = modalBody.querySelectorAll('code[data-code]');
+      codeBlocks.forEach(codeEl => {
+        const fullText = codeEl.getAttribute('data-code');
+        typeCodeEffect(codeEl, fullText);
+      });
+    }
+
+    function typeCodeEffect(element, text) {
+      element.textContent = '';
+      element.classList.add('typing-cursor');
+      let index = 0;
+
+      function typeChar() {
+        if (index < text.length) {
+          element.textContent += text.charAt(index);
+          index++;
+          const timeout = setTimeout(typeChar, 25);
+          typingTimeouts.push(timeout);
+        } else {
+          element.classList.remove('typing-cursor');
+        }
+      }
+
+      typeChar();
+    }
+
+    function clearTypingTimeouts() {
+      typingTimeouts.forEach(timeout => clearTimeout(timeout));
+      typingTimeouts = [];
+    }
+
+    function closeModal() {
+      modalOverlay.classList.remove('active');
+      clearTypingTimeouts();
+    }
+
+    function closeModalOnOutside(event) {
+      if (event.target === modalOverlay) {
+        closeModal();
+      }
+    }
+
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape' && modalOverlay.classList.contains('active')) {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>
